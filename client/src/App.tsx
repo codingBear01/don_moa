@@ -1,12 +1,13 @@
 import { Routes, Route } from 'react-router-dom';
+import { Footer, Header } from './components/common';
 import { GeneralCal } from './components/calculators';
 
 function App() {
   return (
     <>
-      <Routes>
-        <Route path="generalCal" element={<GeneralCal />} />
-      </Routes>
+      <Header />
+      <GeneralCal />
+      <Footer />
     </>
   );
 }
