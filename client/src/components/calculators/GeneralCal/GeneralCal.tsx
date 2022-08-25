@@ -1,102 +1,198 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import { useState } from 'react';
 import { MdOutlineTimer } from 'react-icons/md';
+import { BsBackspace } from 'react-icons/bs';
+import * as C from '../../../styles/calculators';
+import * as S from '../../../styles';
 
 export const GeneralCal = () => {
-  const colors = {
-    blue: '#adbae8',
-    red: '#cd3e38',
-    beige: '#daaaa1',
-    black: '#010101',
-    lightBlack: '#171717',
+  const [prevNumber, setPrevNumber] = useState<string | number>('');
+  const [currNumber, setCurrNumber] = useState<string | number>('');
+  const [resultNumber, setResultNumber] = useState<number>(0);
+
+  const handleInputNum = (e: any) => {
+    const num = e.target.textContent;
+
+    if (inputNumChecker()) {
+      setCurrNumber((prevNum) => {
+        const currNum = prevNum + num;
+        return currNum;
+      });
+    }
   };
 
-  const styleAlignCenter =
-    'display: flex; align-items: center; justify-content: center;';
+  const inputNumChecker = () => {
+    if (currNumber.toString().length > 15) {
+      alert('15자리까지 입력할 수 있어요.');
+      return false;
+    }
+    return true;
+  };
 
-  const CalBody = styled.div`
-    ${styleAlignCenter}
-    flex-direction: column;
-    margin: 0 auto;
-    width: 250px;
-  `;
+  const calculateNumbers = (action: any) => {
+    setCurrNumber('');
 
-  const CalControlButtonArea = styled.div`
-    ${styleAlignCenter}
-    justify-content: space-around;
-    width: 100%;
-    background-color: ${colors.black};
-    color: ${colors.blue};
-  `;
+    if (action === '＋') {
+      const result = +prevNumber + +currNumber;
 
-  const CalControlButton = styled.button`
-    border: none;
-    background: none;
-    color: white;
-  `;
+      setPrevNumber(result);
+      setResultNumber(result);
+    } else if (action === '－') {
+      const result = +prevNumber - +currNumber;
 
-  const CalButtonArea = styled.div`
-    ${styleAlignCenter}
-    flex-direction: column;
-    padding: 15px 0;
-    width: 100%;
-    background-color: ${colors.black};
-  `;
+      setResultNumber(result);
+      setPrevNumber(result);
+    } else if (action === '×') {
+      const result = +prevNumber * +currNumber;
 
-  const CalButtonRow = styled.div``;
+      setResultNumber(result);
+      setPrevNumber(result);
+    } else if (action === '÷') {
+      const result = +prevNumber / +currNumber;
 
-  const CalButton = styled.button`
-    width: 50px;
-    height: 50px;
-    margin: 2px;
-    border: none;
-    border-radius: 100%;
-    background-color: ${colors.lightBlack};
-    color: ${colors.blue};
-    font-size: 20px;
-  `;
+      setResultNumber(result);
+      setPrevNumber(result);
+    }
+  };
+
+  const resetNumber = () => {
+    setPrevNumber('');
+    setCurrNumber('');
+    setResultNumber(0);
+  };
+
+  const handleChangeSign = () => {
+    if (+currNumber > 0) {
+      setCurrNumber((prevNum) => {
+        const minusNumber = +prevNum * -1;
+        return minusNumber;
+      });
+    } else if (+currNumber < 0) {
+      console.log(+currNumber);
+      setCurrNumber((prevNum) => {
+        const plusNumber = +prevNum * -1;
+        return plusNumber;
+      });
+    }
+  };
 
   return (
-    <CalBody>
-      <div>input 영역</div>
-      <CalControlButtonArea>
-        <CalControlButton>
-          <MdOutlineTimer />
-        </CalControlButton>
-        <CalControlButton>지우기 아이콘</CalControlButton>
-      </CalControlButtonArea>
-      <CalButtonArea>
+    <C.CalBody>
+      <C.CalInputArea
+        style={{
+          flexDirection: 'column',
+        }}
+      >
         <div>
-          <CalButton style={{ color: `${colors.red}` }}>C</CalButton>
-          <CalButton style={{ color: `${colors.beige}` }}>()</CalButton>
-          <CalButton style={{ color: `${colors.beige}` }}>%</CalButton>
-          <CalButton style={{ color: `${colors.beige}` }}>÷</CalButton>
+          <span style={{ color: 'white' }}>Prev: </span>
+          <input
+            type="number"
+            value={prevNumber}
+            readOnly
+            style={{ textAlign: 'right' }}
+            maxLength={15}
+          />
         </div>
         <div>
-          <CalButton>7</CalButton>
-          <CalButton>8</CalButton>
-          <CalButton>9</CalButton>
-          <CalButton style={{ color: `${colors.beige}` }}>×</CalButton>
+          <span style={{ color: 'white' }}>Curr: </span>
+          <input
+            type="number"
+            value={currNumber}
+            readOnly
+            style={{ textAlign: 'right' }}
+            maxLength={15}
+          />
         </div>
         <div>
-          <CalButton>4</CalButton>
-          <CalButton>5</CalButton>
-          <CalButton>6</CalButton>
-          <CalButton style={{ color: `${colors.beige}` }}>－</CalButton>
+          <span style={{ color: 'white' }}>Ret: </span>
+          <input
+            type="number"
+            value={resultNumber}
+            readOnly
+            style={{ textAlign: 'right' }}
+            maxLength={15}
+          />
+        </div>
+      </C.CalInputArea>
+
+      <C.CalControlButtonArea>
+        <C.CalControlButton>
+          <MdOutlineTimer
+            style={{
+              color: `${S.GeneralCalColors.blue}`,
+              fontSize: '22px',
+            }}
+          />
+        </C.CalControlButton>
+        <C.CalControlButton>
+          <BsBackspace
+            style={{ color: `${S.GeneralCalColors.blue}`, fontSize: '22px' }}
+          />
+        </C.CalControlButton>
+      </C.CalControlButtonArea>
+
+      <C.CalButtonArea>
+        <div>
+          <C.CalButton
+            style={{ color: `${S.GeneralCalColors.red}` }}
+            onClick={resetNumber}
+          >
+            C
+          </C.CalButton>
+          <C.CalButton style={{ color: `${S.GeneralCalColors.beige}` }}>
+            ()
+          </C.CalButton>
+          <C.CalButton style={{ color: `${S.GeneralCalColors.beige}` }}>
+            %
+          </C.CalButton>
+          <C.CalButton
+            style={{ color: `${S.GeneralCalColors.beige}` }}
+            onClick={() => calculateNumbers('÷')}
+          >
+            ÷
+          </C.CalButton>
         </div>
         <div>
-          <CalButton>1</CalButton>
-          <CalButton>2</CalButton>
-          <CalButton>3</CalButton>
-          <CalButton style={{ color: `${colors.beige}` }}>＋</CalButton>
+          <C.CalButton onClick={handleInputNum}>7</C.CalButton>
+          <C.CalButton onClick={handleInputNum}>8</C.CalButton>
+          <C.CalButton onClick={handleInputNum}>9</C.CalButton>
+          <C.CalButton
+            style={{ color: `${S.GeneralCalColors.beige}` }}
+            onClick={() => calculateNumbers('×')}
+          >
+            ×
+          </C.CalButton>
         </div>
         <div>
-          <CalButton>+/-</CalButton>
-          <CalButton>0</CalButton>
-          <CalButton>.</CalButton>
-          <CalButton style={{ color: `${colors.beige}` }}>＝</CalButton>
+          <C.CalButton onClick={handleInputNum}>4</C.CalButton>
+          <C.CalButton onClick={handleInputNum}>5</C.CalButton>
+          <C.CalButton onClick={handleInputNum}>6</C.CalButton>
+          <C.CalButton
+            style={{ color: `${S.GeneralCalColors.beige}` }}
+            onClick={() => calculateNumbers('－')}
+          >
+            －
+          </C.CalButton>
         </div>
-      </CalButtonArea>
-    </CalBody>
+        <div>
+          <C.CalButton onClick={handleInputNum}>1</C.CalButton>
+          <C.CalButton onClick={handleInputNum}>2</C.CalButton>
+          <C.CalButton onClick={handleInputNum}>3</C.CalButton>
+          <C.CalButton
+            style={{ color: `${S.GeneralCalColors.beige}` }}
+            onClick={() => calculateNumbers('＋')}
+          >
+            ＋
+          </C.CalButton>
+        </div>
+        <div>
+          <C.CalButton onClick={handleChangeSign}>+/-</C.CalButton>
+          <C.CalButton onClick={handleInputNum}>0</C.CalButton>
+          <C.CalButton>.</C.CalButton>
+          <C.CalButton style={{ color: `${S.GeneralCalColors.beige}` }}>
+            ＝
+          </C.CalButton>
+        </div>
+      </C.CalButtonArea>
+    </C.CalBody>
   );
 };
