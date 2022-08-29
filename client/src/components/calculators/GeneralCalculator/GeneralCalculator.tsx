@@ -5,7 +5,7 @@ import { BsBackspace } from 'react-icons/bs';
 import { messages } from '../../../messages';
 
 const GeneralCalculator = () => {
-  const [previousNumber, setPreviousNumber] = useState<string | number>('');
+  const [previousNumber, setPreviousNumber] = useState<number | string>(0);
   const [middleNumber, setMiddleNumber] = useState<string | number>('');
   const [inputNumber, setInputNumber] = useState<string | number>('');
   const [totalNumber, setTotalNumber] = useState('');
@@ -16,7 +16,7 @@ const GeneralCalculator = () => {
   const [calHistories, setCalHistories] = useState([
     {
       id: 0,
-      prevNum: '',
+      prevNum: 0,
       operation: '',
       midNum: 0,
       totalNum: 0,
@@ -87,9 +87,9 @@ const GeneralCalculator = () => {
         ...prevHis,
         {
           id: prevHis[prevHis.length - 1].id + 1,
-          prevNum: previousNumber,
+          prevNum: +previousNumber,
           operation: _oper,
-          midNum: inputNumber,
+          midNum: +inputNumber,
           totalNum: _calculated,
         },
       ]);
@@ -100,9 +100,9 @@ const GeneralCalculator = () => {
         ...prevHis,
         {
           id: prevHis[prevHis.length - 1].id + 1,
-          prevNum: previousNumber,
+          prevNum: +previousNumber,
           operation: _oper,
-          midNum: inputNumber,
+          midNum: +inputNumber,
           totalNum: _calculated,
         },
       ]);
@@ -158,7 +158,7 @@ const GeneralCalculator = () => {
     setCalHistories([
       {
         id: 0,
-        prevNum: '',
+        prevNum: 0,
         operation: '',
         midNum: 0,
         totalNum: 0,
@@ -191,18 +191,18 @@ const GeneralCalculator = () => {
       <S.CalInputArea>
         <S.PreviousNumberDiv>
           {previousNumber &&
-            parseFloat(previousNumber).toLocaleString(undefined, {
+            previousNumber.toLocaleString(undefined, {
               maximumFractionDigits: 13,
             })}
           {operation}
           {isTotal &&
-            `${parseFloat(middleNumber).toLocaleString(undefined, {
+            `${middleNumber.toLocaleString(undefined, {
               maximumFractionDigits: 13,
             })} =`}
         </S.PreviousNumberDiv>
         <S.CurrentNumberDiv>
           {inputNumber &&
-            parseFloat(inputNumber).toLocaleString(undefined, {
+            inputNumber.toLocaleString(undefined, {
               maximumFractionDigits: 13,
             })}
         </S.CurrentNumberDiv>
@@ -335,7 +335,7 @@ const GeneralCalculator = () => {
         </S.CalButton>
       </S.CalButtonArea>
       <S.CalMsgDiv>
-        {inputNumber.length > 14 && `${messages.generalCalMsg}`}
+        {inputNumber.toString().length > 14 && `${messages.generalCalMsg}`}
         {notComplete && `${messages.notCompleteMsg}`}
       </S.CalMsgDiv>
     </S.CalBody>
