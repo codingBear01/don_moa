@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import * as S from '../../../style';
+import * as S from '../../../styles';
 
 /* styled-components */
 export const CalBody = styled.div`

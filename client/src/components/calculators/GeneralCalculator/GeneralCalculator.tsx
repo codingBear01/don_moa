@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import * as S from './style';
 import { MdOutlineTimer } from 'react-icons/md';
 import { BsBackspace } from 'react-icons/bs';
 import { messages } from '../../../messages';
 
 const GeneralCalculator = () => {
-  const [previousNumber, setPreviousNumber] = useState<number | string>(0);
+  const [previousNumber, setPreviousNumber] = useState<any>('');
   const [middleNumber, setMiddleNumber] = useState<string | number>('');
-  const [inputNumber, setInputNumber] = useState<string | number>('');
-  const [totalNumber, setTotalNumber] = useState('');
+  const [inputNumber, setInputNumber] = useState('');
+  const [totalNumber, setTotalNumber] = useState<any>('');
   const [operation, setOperation] = useState('');
   const [isTotal, setIsTotal] = useState(false);
   const [notComplete, setNotComplete] = useState(false);
@@ -111,6 +111,7 @@ const GeneralCalculator = () => {
 
   const handleOperate = (e: React.MouseEvent<HTMLElement>) => {
     const oper = e.currentTarget.innerText;
+
     setOperation(oper);
 
     if (!previousNumber) {
@@ -168,16 +169,16 @@ const GeneralCalculator = () => {
 
   const handleChangePercent = () => {
     if (inputNumber) {
-      setInputNumber(+inputNumber * 0.01);
+      setInputNumber((+inputNumber * 0.01).toString());
     }
   };
 
   const handleChangeSign = () => {
     if (inputNumber) {
       if (+inputNumber > 0) {
-        setInputNumber(+inputNumber * -1);
+        setInputNumber((+inputNumber * -1).toString());
       } else {
-        setInputNumber(+inputNumber * -1);
+        setInputNumber((+inputNumber * -1).toString());
       }
     }
   };
@@ -190,27 +191,15 @@ const GeneralCalculator = () => {
     <S.CalBody>
       <S.CalInputArea>
         <S.PreviousNumberDiv>
-          {previousNumber &&
-            previousNumber.toLocaleString(undefined, {
-              maximumFractionDigits: 13,
-            })}
+          {previousNumber && parseFloat(previousNumber.toLocaleString())}
           {operation}
-          {isTotal &&
-            `${middleNumber.toLocaleString(undefined, {
-              maximumFractionDigits: 13,
-            })} =`}
+          {isTotal && `${parseFloat(middleNumber.toLocaleString())} =`}
         </S.PreviousNumberDiv>
         <S.CurrentNumberDiv>
-          {inputNumber &&
-            inputNumber.toLocaleString(undefined, {
-              maximumFractionDigits: 13,
-            })}
+          {inputNumber && parseFloat(inputNumber.toLocaleString())}
         </S.CurrentNumberDiv>
         <S.TotalNumberDiv>
-          {isTotal &&
-            parseFloat(totalNumber).toLocaleString(undefined, {
-              maximumFractionDigits: 13,
-            })}
+          {isTotal && parseFloat(totalNumber.toLocalString())}
         </S.TotalNumberDiv>
         {calHistoryToggle && (
           <S.CalHistoryDiv>
