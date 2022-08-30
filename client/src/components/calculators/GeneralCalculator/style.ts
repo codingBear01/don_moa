@@ -52,21 +52,27 @@ export const CalHistoryDiv = styled.div`
   height: 110px;
   border-radius: 10px;
   background-color: ${S.colors.lightBlack};
-`;
 
-export const CalHistoryList = styled.ul`
-  ${S.alignments.center}
-  align-items: flex-start;
-  flex-direction: column;
-  height: 100%;
+  ul {
+    width: 100%;
 
-  li {
-    margin-right: 3px;
-    opacity: 0.3;
-    list-style: none;
-  }
-  li:last-child {
-    opacity: 0.7;
+    li {
+      margin-right: 3px;
+      opacity: 0.3;
+      list-style: none;
+      text-align: right;
+      margin-bottom: 5px;
+
+      div:first-child {
+        display: flex;
+        algign-items: center;
+        justify-content: flex-end;
+      }
+    }
+
+    li:last-child {
+      opacity: 0.7;
+    }
   }
 `;
 

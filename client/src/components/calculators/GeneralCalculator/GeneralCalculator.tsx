@@ -4,21 +4,33 @@ import { MdOutlineTimer } from 'react-icons/md';
 import { BsBackspace } from 'react-icons/bs';
 import { messages } from '../../../messages';
 
+interface CalHistoriesProps {
+  id: number;
+  prevNum: string | number | undefined;
+  operation: string;
+  midNum: string;
+  totalNum: string | number | undefined;
+}
+
 const GeneralCalculator = () => {
-  const [previousNumber, setPreviousNumber] = useState<any>('');
-  const [middleNumber, setMiddleNumber] = useState<string | number>('');
+  const [previousNumber, setPreviousNumber] = useState<
+    string | number | undefined
+  >('');
+  const [middleNumber, setMiddleNumber] = useState('');
   const [inputNumber, setInputNumber] = useState('');
-  const [totalNumber, setTotalNumber] = useState<any>('');
+  const [totalNumber, setTotalNumber] = useState<string | number | undefined>(
+    ''
+  );
   const [operation, setOperation] = useState('');
   const [isTotal, setIsTotal] = useState(false);
   const [notComplete, setNotComplete] = useState(false);
   const [calHistoryToggle, setCalHistoryToggle] = useState(false);
-  const [calHistories, setCalHistories] = useState([
+  const [calHistories, setCalHistories] = useState<CalHistoriesProps[]>([
     {
       id: 0,
-      prevNum: 0,
+      prevNum: '',
       operation: '',
-      midNum: 0,
+      midNum: '',
       totalNum: 0,
     },
   ]);
@@ -41,22 +53,28 @@ const GeneralCalculator = () => {
     setIsTotal(false);
   };
 
-  const generatedCalculation = (oper: string) => {
-    let calculated = 0;
-    const addition = +previousNumber + +inputNumber;
-    const subtraction = +previousNumber - +inputNumber;
+  const generatedCalculation = (
+    oper: string,
+    prevNum: string | number | undefined,
+    inNum: string
+  ) => {
+    const prevNumber = prevNum ? prevNum : 0;
+    const inNumber = inNum ? inNum : 0;
+    const addition = +prevNumber + +inNumber;
+    const subtraction = +prevNumber - +inNumber;
     let multiplication;
     let division;
+    let calculated = 0;
 
     if (
       (operation !== '×' && oper === '×') ||
       (operation !== '÷' && oper === '÷')
     ) {
-      multiplication = +previousNumber * 1;
-      division = +previousNumber / 1;
+      multiplication = +prevNumber * 1;
+      division = +prevNumber / 1;
     } else {
-      multiplication = +previousNumber * +inputNumber;
-      division = +previousNumber / +inputNumber;
+      multiplication = +prevNumber * +inNumber;
+      division = +prevNumber / +inNumber;
     }
 
     switch (oper) {
@@ -82,14 +100,14 @@ const GeneralCalculator = () => {
   };
 
   const handleSetCalHistories = (_oper: string, _calculated: number) => {
-    if (calHistories.length < 3) {
+    if (calHistories.length < 2) {
       setCalHistories((prevHis) => [
         ...prevHis,
         {
           id: prevHis[prevHis.length - 1].id + 1,
-          prevNum: +previousNumber,
+          prevNum: previousNumber,
           operation: _oper,
-          midNum: +inputNumber,
+          midNum: inputNumber,
           totalNum: _calculated,
         },
       ]);
@@ -100,9 +118,9 @@ const GeneralCalculator = () => {
         ...prevHis,
         {
           id: prevHis[prevHis.length - 1].id + 1,
-          prevNum: +previousNumber,
+          prevNum: previousNumber,
           operation: _oper,
-          midNum: +inputNumber,
+          midNum: inputNumber,
           totalNum: _calculated,
         },
       ]);
@@ -117,7 +135,9 @@ const GeneralCalculator = () => {
     if (!previousNumber) {
       setPreviousNumber(inputNumber);
     } else if (previousNumber && !totalNumber) {
-      setPreviousNumber(generatedCalculation(oper));
+      setPreviousNumber(
+        generatedCalculation(oper, previousNumber, inputNumber)
+      );
     } else if (previousNumber && totalNumber) {
       setPreviousNumber(totalNumber);
     }
@@ -138,7 +158,9 @@ const GeneralCalculator = () => {
     setPreviousNumber(previousNumber);
     setMiddleNumber(inputNumber);
     setInputNumber('');
-    setTotalNumber(generatedCalculation(operation));
+    setTotalNumber(
+      generatedCalculation(operation, previousNumber, inputNumber)
+    );
     setOperation(operation);
     setIsTotal(true);
     setNotComplete(false);
@@ -159,9 +181,9 @@ const GeneralCalculator = () => {
     setCalHistories([
       {
         id: 0,
-        prevNum: 0,
+        prevNum: '',
         operation: '',
-        midNum: 0,
+        midNum: '',
         totalNum: 0,
       },
     ]);
@@ -191,34 +213,47 @@ const GeneralCalculator = () => {
     <S.CalBody>
       <S.CalInputArea>
         <S.PreviousNumberDiv>
-          {previousNumber && parseFloat(previousNumber.toLocaleString())}
+          {previousNumber &&
+            parseFloat(previousNumber.toString()).toLocaleString()}
           {operation}
-          {isTotal && `${parseFloat(middleNumber.toLocaleString())} =`}
+          {middleNumber && `${parseFloat(middleNumber).toLocaleString()} =`}
         </S.PreviousNumberDiv>
         <S.CurrentNumberDiv>
-          {inputNumber && parseFloat(inputNumber.toLocaleString())}
+          {inputNumber && parseFloat(inputNumber).toLocaleString()}
         </S.CurrentNumberDiv>
         <S.TotalNumberDiv>
-          {isTotal && parseFloat(totalNumber.toLocalString())}
+          {isTotal &&
+            totalNumber &&
+            parseFloat(totalNumber.toString()).toLocaleString()}
         </S.TotalNumberDiv>
         {calHistoryToggle && (
           <S.CalHistoryDiv>
-            <div>계산 기록</div>
-            <S.CalHistoryList>
+            <ul>
               {calHistories.map((his, i) => (
                 <li key={his.id}>
                   {his.prevNum && (
                     <>
-                      <span>{his.prevNum} </span>
-                      <span>{his.operation} </span>
-                      <span>{his.midNum} </span>
-                      <span>= </span>
-                      <span>{his.totalNum}</span>
+                      <div>
+                        <span>
+                          {parseFloat(his.prevNum.toString()).toLocaleString()}{' '}
+                        </span>
+                        <span>{his.operation} </span>
+                        <span>{parseFloat(his.midNum).toLocaleString()} </span>
+                        <span>= </span>
+                      </div>
+                      <div>
+                        <span>
+                          {his.totalNum &&
+                            parseFloat(
+                              his.totalNum.toString()
+                            ).toLocaleString()}
+                        </span>
+                      </div>
                     </>
                   )}
                 </li>
               ))}
-            </S.CalHistoryList>
+            </ul>
           </S.CalHistoryDiv>
         )}
       </S.CalInputArea>
