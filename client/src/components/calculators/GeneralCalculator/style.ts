@@ -33,6 +33,15 @@ export const PreviousNumberDiv = styled.div`
 
 export const CurrentNumberDiv = styled.div`
   font-size: 24px;
+  input {
+    width: 100%;
+    outline: none;
+    border: none;
+    background-color: ${S.colors.lightBlack};
+    font-size: 24px;
+    color: ${S.colors.white};
+    text-align: right;
+  }
 `;
 
 export const TotalNumberDiv = styled.div`

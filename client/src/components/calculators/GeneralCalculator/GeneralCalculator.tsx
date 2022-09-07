@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import * as S from './style';
 import { MdOutlineTimer } from 'react-icons/md';
 import { BsBackspace } from 'react-icons/bs';
@@ -23,7 +23,7 @@ const GeneralCalculator = () => {
   );
   const [operation, setOperation] = useState('');
   const [isTotal, setIsTotal] = useState(false);
-  const [notComplete, setNotComplete] = useState(false);
+  const [isComplete, setIsComplete] = useState(true);
   const [calHistoryToggle, setCalHistoryToggle] = useState(false);
   const [calHistories, setCalHistories] = useState<CalHistoriesProps[]>([
     {
@@ -34,11 +34,13 @@ const GeneralCalculator = () => {
       totalNum: 0,
     },
   ]);
+  const inputNumberElement = useRef(null);
 
-  const inputValChecker = (val: number | string, inputVal: string) => {
-    if (val.toString().includes('.') && inputVal === '.') return;
-    if (!inputNumber && inputVal === '0') return false;
-    if (val.toString().length > 14) return false;
+  const inputValChecker = (inputNum: number | string, inputVal: string) => {
+    if (!inputNum && inputVal === '.') return;
+    if (inputNum.toString().includes('.') && inputVal === '.') return;
+    if (!inputNum && inputVal === '0') return false;
+    if (inputNum.toString().length > 14) return false;
 
     return true;
   };
@@ -49,8 +51,15 @@ const GeneralCalculator = () => {
     if (inputValChecker(inputNumber, val)) {
       setInputNumber(inputNumber + val);
     }
+    if (totalNumber) {
+      handleReset();
+      if (inputValChecker(inputNumber, val)) {
+        setInputNumber(inputNumber + val);
+      }
+    }
 
     setIsTotal(false);
+    setIsComplete(true);
   };
 
   const generatedCalculation = (
@@ -67,8 +76,8 @@ const GeneralCalculator = () => {
     let calculated = 0;
 
     if (
-      (operation !== '×' && oper === '×') ||
-      (operation !== '÷' && oper === '÷')
+      (operation !== '*' && oper === '*') ||
+      (operation !== '/' && oper === '/')
     ) {
       multiplication = +prevNumber * 1;
       division = +prevNumber / 1;
@@ -78,16 +87,16 @@ const GeneralCalculator = () => {
     }
 
     switch (oper) {
-      case '＋':
+      case '+':
         calculated = addition;
         break;
-      case '－':
+      case '-':
         calculated = subtraction;
         break;
-      case '×':
+      case '*':
         calculated = multiplication;
         break;
-      case '÷':
+      case '/':
         calculated = division;
         break;
       default:
@@ -127,32 +136,33 @@ const GeneralCalculator = () => {
     }
   };
 
-  const handleOperate = (e: React.MouseEvent<HTMLElement>) => {
-    const oper = e.currentTarget.innerText;
-
-    setOperation(oper);
+  const operate = (op: string) => {
+    if (!inputNumber && !previousNumber) return;
 
     if (!previousNumber) {
       setPreviousNumber(inputNumber);
     } else if (previousNumber && !totalNumber) {
-      setPreviousNumber(
-        generatedCalculation(oper, previousNumber, inputNumber)
-      );
+      setPreviousNumber(generatedCalculation(op, previousNumber, inputNumber));
     } else if (previousNumber && totalNumber) {
       setPreviousNumber(totalNumber);
+      setMiddleNumber(inputNumber);
     }
 
-    setMiddleNumber('');
+    setOperation(op);
     setInputNumber('');
     setTotalNumber('');
     setIsTotal(false);
-    setNotComplete(false);
+    setIsComplete(true);
   };
 
-  const handleEvaluate = (e: React.MouseEvent<HTMLElement>) => {
-    if (!inputNumber) {
-      setNotComplete(true);
-      return;
+  const handleOperate = (e: React.MouseEvent<HTMLElement>) => {
+    const oper = e.currentTarget.innerText;
+    operate(oper);
+  };
+
+  const evaluate = () => {
+    if (!previousNumber || (previousNumber && !inputNumber)) {
+      return setIsComplete(false);
     }
 
     setPreviousNumber(previousNumber);
@@ -163,10 +173,14 @@ const GeneralCalculator = () => {
     );
     setOperation(operation);
     setIsTotal(true);
-    setNotComplete(false);
+    setIsComplete(true);
   };
 
-  const handleDelete = (e: React.MouseEvent<HTMLElement>) => {
+  const handleEvaluate = () => {
+    evaluate();
+  };
+
+  const handleDelete = () => {
     setInputNumber(inputNumber.toString().slice(0, -1));
   };
 
@@ -177,7 +191,7 @@ const GeneralCalculator = () => {
     setTotalNumber('');
     setOperation('');
     setIsTotal(false);
-    setNotComplete(false);
+    setIsComplete(true);
     setCalHistories([
       {
         id: 0,
@@ -209,14 +223,41 @@ const GeneralCalculator = () => {
     setCalHistoryToggle(!calHistoryToggle);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
+    const key = e.key;
+
+    if (!isNaN(+key) && inputValChecker(inputNumber, key)) {
+      setInputNumber(inputNumber + key);
+      setIsTotal(false);
+    }
+    if (key === '+' || key === '-' || key === '*' || key === '/') {
+      operate(key);
+      setMiddleNumber('');
+      setInputNumber('');
+      setTotalNumber('');
+      setIsTotal(false);
+      setIsComplete(true);
+    }
+    if (key === '=') {
+      evaluate();
+    }
+    if (key === 'Backspace') {
+      handleDelete();
+    }
+    if (key === 'Escape') {
+      handleReset();
+    }
+  };
+
   return (
-    <S.CalBody>
+    <S.CalBody onKeyDown={handleKeyDown}>
       <S.CalInputArea>
         <S.PreviousNumberDiv>
           {previousNumber &&
             parseFloat(previousNumber.toString()).toLocaleString()}
           {operation}
-          {middleNumber && `${parseFloat(middleNumber).toLocaleString()} =`}
+          {+middleNumber > 0 &&
+            `${parseFloat(middleNumber).toLocaleString()} =`}
         </S.PreviousNumberDiv>
         <S.CurrentNumberDiv>
           {inputNumber && parseFloat(inputNumber).toLocaleString()}
@@ -287,7 +328,7 @@ const GeneralCalculator = () => {
           onClick={handleOperate}
           disabled={calHistoryToggle}
         >
-          ÷
+          /
         </S.CalButton>
         <S.CalButton onClick={handleInputVal} disabled={calHistoryToggle}>
           7
@@ -303,7 +344,7 @@ const GeneralCalculator = () => {
           onClick={handleOperate}
           disabled={calHistoryToggle}
         >
-          ×
+          *
         </S.CalButton>
         <S.CalButton onClick={handleInputVal} disabled={calHistoryToggle}>
           4
@@ -319,7 +360,7 @@ const GeneralCalculator = () => {
           onClick={handleOperate}
           disabled={calHistoryToggle}
         >
-          －
+          -
         </S.CalButton>
         <S.CalButton onClick={handleInputVal} disabled={calHistoryToggle}>
           1
@@ -335,7 +376,7 @@ const GeneralCalculator = () => {
           onClick={handleOperate}
           disabled={calHistoryToggle}
         >
-          ＋
+          +
         </S.CalButton>
         <S.CalButton onClick={handleInputVal} disabled={calHistoryToggle}>
           0
@@ -360,7 +401,7 @@ const GeneralCalculator = () => {
       </S.CalButtonArea>
       <S.CalMsgDiv>
         {inputNumber.toString().length > 14 && `${messages.generalCalMsg}`}
-        {notComplete && `${messages.notCompleteMsg}`}
+        {!isComplete && `${messages.notCompleteMsg}`}
       </S.CalMsgDiv>
     </S.CalBody>
   );
