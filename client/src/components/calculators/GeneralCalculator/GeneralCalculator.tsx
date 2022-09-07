@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import * as S from './style';
 import { MdOutlineTimer } from 'react-icons/md';
 import { BsBackspace } from 'react-icons/bs';
@@ -31,10 +31,9 @@ const GeneralCalculator = () => {
       prevNum: '',
       operation: '',
       midNum: '',
-      totalNum: 0,
+      totalNum: '',
     },
   ]);
-  const inputNumberElement = useRef(null);
 
   const inputValChecker = (inputNum: number | string, inputVal: string) => {
     if (!inputNum && inputVal === '.') return;
@@ -48,14 +47,14 @@ const GeneralCalculator = () => {
   const handleInputVal = (e: React.MouseEvent<HTMLElement>) => {
     const val = e.currentTarget.innerText;
 
-    if (inputValChecker(inputNumber, val)) {
-      setInputNumber(inputNumber + val);
-    }
     if (totalNumber) {
       handleReset();
       if (inputValChecker(inputNumber, val)) {
         setInputNumber(inputNumber + val);
       }
+    }
+    if (inputValChecker(inputNumber, val)) {
+      setInputNumber(inputNumber + val);
     }
 
     setIsTotal(false);
@@ -166,6 +165,7 @@ const GeneralCalculator = () => {
     }
 
     setPreviousNumber(previousNumber);
+    console.log('in', inputNumber);
     setMiddleNumber(inputNumber);
     setInputNumber('');
     setTotalNumber(
@@ -225,7 +225,15 @@ const GeneralCalculator = () => {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     const key = e.key;
+    console.log(e);
 
+    if (!isNaN(+key) && totalNumber) {
+      handleReset();
+      if (inputValChecker(inputNumber, key)) {
+        setInputNumber(inputNumber + key);
+        setIsTotal(false);
+      }
+    }
     if (!isNaN(+key) && inputValChecker(inputNumber, key)) {
       setInputNumber(inputNumber + key);
       setIsTotal(false);
@@ -244,8 +252,17 @@ const GeneralCalculator = () => {
     if (key === 'Backspace') {
       handleDelete();
     }
-    if (key === 'Escape') {
+    if (key === 'Escape' || key === 'r') {
       handleReset();
+    }
+    if (key === 'p') {
+      handleChangePercent();
+    }
+    if (key === 's') {
+      handleChangeSign();
+    }
+    if (key === 'h') {
+      handleCalHistoryToggle();
     }
   };
 
@@ -256,8 +273,8 @@ const GeneralCalculator = () => {
           {previousNumber &&
             parseFloat(previousNumber.toString()).toLocaleString()}
           {operation}
-          {+middleNumber > 0 &&
-            `${parseFloat(middleNumber).toLocaleString()} =`}
+          {middleNumber &&
+            `${parseFloat(middleNumber.toString()).toLocaleString()} =`}
         </S.PreviousNumberDiv>
         <S.CurrentNumberDiv>
           {inputNumber && parseFloat(inputNumber).toLocaleString()}
