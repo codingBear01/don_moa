@@ -165,7 +165,6 @@ const GeneralCalculator = () => {
     }
 
     setPreviousNumber(previousNumber);
-    console.log('in', inputNumber);
     setMiddleNumber(inputNumber);
     setInputNumber('');
     setTotalNumber(
@@ -225,7 +224,6 @@ const GeneralCalculator = () => {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     const key = e.key;
-    console.log(e);
 
     if (!isNaN(+key) && totalNumber) {
       handleReset();
